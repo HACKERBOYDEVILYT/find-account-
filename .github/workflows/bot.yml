@@ -1,0 +1,48 @@
+name: 🦅 EH Munna Account Bot
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # প্রতি ৫ মিনিটে run করবে
+  workflow_dispatch:          # manually trigger করা যাবে
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4        # ৫ মিনিটের আগেই শেষ হবে
+
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium --with-deps
+
+      - name: 🗂️ Restore seen_accounts cache
+        uses: actions/cache@v4
+        with:
+          path: seen_accounts.json
+          key: seen-accounts-${{ github.run_id }}
+          restore-keys: |
+            seen-accounts-
+
+      - name: 🚀 Run bot (single cycle)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CHECK_INTERVAL: "0"   # single cycle mode
+        run: python main.py
+
+      - name: 💾 Save seen_accounts cache
+        if: always()
+        uses: actions/cache@v4
+        with:
+          path: seen_accounts.json
+          key: seen-accounts-${{ github.run_id }}
