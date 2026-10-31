@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "find-account"
+version = "0.1.0"
+description = "EH Munna Account Bot"
+dependencies = [
+    "requests==2.31.0",
+    "beautifulsoup4==4.12.3",
+    "python-telegram-bot==20.7",
+    "python-dotenv==1.0.1",
+    "aiogram>=3.0",
+    "aiohttp",
+    "playwright>=1.43.0"
+]
