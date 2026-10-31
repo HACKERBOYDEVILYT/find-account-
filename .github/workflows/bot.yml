@@ -17,39 +17,22 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 1. Ekhane kono cache ba extra param rakhlam na, jate kono file khujte giye error na dey
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      # 2. Direct requirements.txt diye pip install kore nchi
+      # actions/setup-python বাদ দিয়ে সরাসরি উবুন্টুর ডিফল্ট পাইথন ও pip ব্যবহার করা হলো
       - name: Install Python Dependencies
         run: |
-          python -m pip install --upgrade pip
+          python3 -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Cache Playwright Browsers
-        uses: actions/cache@v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-
       - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: playwright install chromium --with-deps
-
-      - name: Install Playwright Dependencies Only
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: playwright install-deps chromium
+        run: |
+          playwright install chromium --with-deps
 
       - name: Run bot single cycle
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           CHECK_INTERVAL: "0"
-        run: python main.py
+        run: python3 main.py
 
       - name: Commit and push updated seen_accounts.json
         if: always()
