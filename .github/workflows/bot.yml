@@ -5,7 +5,6 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
-# Auto Commit এবং পুশ করার জন্য write পারমিশন প্রয়োজন
 permissions:
   contents: write
 
@@ -18,23 +17,24 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # 1. Ekhane kono cache ba extra param rakhlam na, jate kono file khujte giye error na dey
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          # cache অপশন বাদ দেওয়া হয়েছে কারণ pyproject.toml ব্যবহার করা হচ্ছে
 
+      # 2. Direct requirements.txt diye pip install kore nchi
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install .
+          pip install -r requirements.txt
 
       - name: Cache Playwright Browsers
         uses: actions/cache@v4
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
