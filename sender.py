@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import datetime
 from telegram import Bot
 from telegram.constants import ParseMode
@@ -6,7 +7,11 @@ from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
 log = logging.getLogger(__name__)
 
-bot = Bot(token=TELEGRAM_BOT_TOKEN)
+# টোকেন এবং চ্যাট আইডি থেকে যেকোনো লুকানো স্পেস বা ইনভ্যালিড ক্যারেক্টার রিমুভ করা হলো
+CLEAN_TOKEN = re.sub(r'[^\x20-\x7E]', '', str(TELEGRAM_BOT_TOKEN or '')).strip()
+CLEAN_CHAT_ID = re.sub(r'[^\x20-\x7E]', '', str(TELEGRAM_CHAT_ID or '')).strip()
+
+bot = Bot(token=CLEAN_TOKEN)
 
 PLATFORM_EMOJI = {
     "NETFLIX":     "🎬",
@@ -50,7 +55,7 @@ def format_message(item: dict) -> str:
 async def send(message: str):
     try:
         await bot.send_message(
-            chat_id=TELEGRAM_CHAT_ID,
+            chat_id=CLEAN_CHAT_ID,
             text=message,
             parse_mode=ParseMode.MARKDOWN,
             disable_web_page_preview=True,
@@ -61,7 +66,7 @@ async def send(message: str):
 
 async def send_startup(interval_min: int):
     await bot.send_message(
-        chat_id=TELEGRAM_CHAT_ID,
+        chat_id=CLEAN_CHAT_ID,
         text=(
             "🦅 *EH Munna 👿 Account Bot — ONLINE*\n"
             f"⏱ Interval: every `{interval_min}` min\n"
@@ -74,7 +79,7 @@ async def send_startup(interval_min: int):
 
 async def send_summary(new_count: int, total: int, interval_min: int):
     await bot.send_message(
-        chat_id=TELEGRAM_CHAT_ID,
+        chat_id=CLEAN_CHAT_ID,
         text=(
             f"📊 *Cycle Done*\n"
             f"✅ New: `{new_count}`\n"
